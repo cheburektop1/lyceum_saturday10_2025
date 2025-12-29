@@ -19,15 +19,20 @@ class GoodsViewModel : ViewModel() {
         get() = _state
 
     init {
+        loadGoods()
+    }
+
+    private fun loadGoods() {
         val goodsFromDb = db
             ?.goodsDao()
             ?.getAllGoods()
             ?.map { good ->
                 GoodsItem(
+                    id = good.id,
                     name = good.name,
                     rating = good.rating,
                     description = good.description,
-                    imageURL = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSibbxABu10t0qxQWHjH-QQFSWaCgd68RbztA&s"
+                    imageURL = good.imageURL
                 )
             } ?: emptyList()
 
@@ -38,24 +43,43 @@ class GoodsViewModel : ViewModel() {
         }
     }
 
-    fun addGood(name: String, description: String) {
-        val goodsList = state.value.items.toMutableList()
-        goodsList.add(
-            GoodsItem(
-                name = name,
-                rating = 5,
-                description = description,
-                imageURL = ""
-            )
+    fun addGood(name: String, description: String, imageUrl: String) {
+        val newGood = Good(
+            name = name,
+            description = description,
+            rating = 5,
+            imageURL = imageUrl
         )
-        db?.goodsDao()?.insert(
-            Good(
-                name = name,
-                description = description,
-                rating = 5
+        db?.goodsDao()?.insert(newGood)
+        
+        // Reload from DB to get the ID and updated list
+        loadGoods()
+    }
+
+    fun deleteGood(item: GoodsItem) {
+        // Only delete from DB if it's not a mock item (assuming mock items have id 0 or we just can't delete them from DB if they are not in DB)
+        // However, looking at GoodsItem definition, id defaults to 0. 
+        // Mock items in companion object don't have IDs specified, so they are 0.
+        // DB items will have non-zero IDs (auto-generated).
+        
+        if (item.id != 0) {
+            val goodToDelete = Good(
+                id = item.id,
+                name = item.name,
+                description = item.description,
+                rating = item.rating,
+                imageURL = item.imageURL
             )
-        )
-        _state.value = GoodsUiState(goodsList)
+            db?.goodsDao()?.delete(goodToDelete)
+            loadGoods()
+        } else {
+             // For mock items, we just remove them from the current state list if we want to support deleting them locally
+             // But the prompt says "delete from database".
+             // If we want to support deleting mock items from the list, we can filter them out.
+             val currentList = _state.value.items.toMutableList()
+             currentList.remove(item)
+             _state.value = _state.value.copy(items = currentList)
+        }
     }
 
 

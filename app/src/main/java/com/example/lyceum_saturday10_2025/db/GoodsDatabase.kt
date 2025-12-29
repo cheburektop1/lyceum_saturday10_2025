@@ -25,6 +25,7 @@ data class Good(
     val name: String,
     val description: String,
     val rating: Int,
+    val imageURL: String
 )
 
 @Dao

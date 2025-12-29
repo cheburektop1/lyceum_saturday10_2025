@@ -13,6 +13,7 @@ class App: Application() {
             "goods-db"
         )
             .allowMainThreadQueries()
+            .fallbackToDestructiveMigration()
             .build()
     }
 

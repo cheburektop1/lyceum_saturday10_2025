@@ -25,8 +25,9 @@ import com.example.lyceum_saturday10_2025.features.goods.presentation.model.Good
 @Composable
 fun GoodsScreenContent(
     state: GoodsUiState,
-    onAddClicked: (String, String) -> Unit,
+    onAddClicked: (String, String, String) -> Unit,
     onGoodClicked: (GoodsItem) -> Unit,
+    onDeleteClicked: (GoodsItem) -> Unit,
 ) {
     Column {
         var nameTextFieldValue by remember { mutableStateOf("") }
@@ -55,8 +56,24 @@ fun GoodsScreenContent(
 
         Spacer(Modifier.height(16.dp))
 
+        var imageUrlTextFieldValue by remember { mutableStateOf("") }
+        OutlinedTextField(
+            value = imageUrlTextFieldValue,
+            onValueChange = { newValue ->
+                imageUrlTextFieldValue = newValue
+            },
+            placeholder = {
+                Text("Введите URL картинки")
+            }
+        )
+
+        Spacer(Modifier.height(16.dp))
+
         Button(onClick = {
-            onAddClicked(nameTextFieldValue, descriptionTextFieldValue)
+            onAddClicked(nameTextFieldValue, descriptionTextFieldValue, imageUrlTextFieldValue)
+            nameTextFieldValue = ""
+            descriptionTextFieldValue = ""
+            imageUrlTextFieldValue = ""
         }) {
             Text("Добавить товар")
         }
@@ -66,7 +83,7 @@ fun GoodsScreenContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(state.items) { item ->
-                GoodsCard(item, onGoodClicked)
+                GoodsCard(item, onGoodClicked, onDeleteClicked)
             }
         }
     }
@@ -75,5 +92,5 @@ fun GoodsScreenContent(
 @Composable
 @Preview
 private fun GoodsScreenPreview() {
-    GoodsScreenContent(GoodsUiState(), { _, _ -> }, { _ -> })
+    GoodsScreenContent(GoodsUiState(), { _, _, _ -> }, { _ -> }, { _ -> })
 }
