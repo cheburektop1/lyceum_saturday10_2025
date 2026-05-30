@@ -27,9 +27,17 @@ import com.example.lyceum_saturday10_2025.features.todo.presentation.model.TodoU
 @Composable
 fun TodoScreenContent(
     state: TodoUiState,
-    addItem: (String) -> Unit,
+    onAdd: (String) -> Unit,
+    onLogout: () -> Unit
 ) {
     Column {
+        // кнопка выхода
+        Row(modifier = Modifier.padding(8.dp)) {
+            Button(onClick = onLogout) {
+                Text("Выйти")
+            }
+        }
+
         var textFieldValue by remember { mutableStateOf("") }
         OutlinedTextField(
             modifier = Modifier.padding(8.dp),
@@ -45,7 +53,7 @@ fun TodoScreenContent(
         Button(
             modifier = Modifier.padding(8.dp),
             onClick = {
-                addItem(textFieldValue)
+                onAdd(textFieldValue)
             }
         ) {
             Text("Добавить")
@@ -83,6 +91,7 @@ private fun TodoScreenPreview() {
                 )
             )
         ),
+        {},
         {}
     )
 }
